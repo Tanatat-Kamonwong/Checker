@@ -224,6 +224,17 @@ class DeliveryChecker:
         
         # คืนค่าเป็น String ปัดเศษคูณ 100 คั่นด้วย /
         return f"{round(r6_f1 * 100)}/{round(r9_f1 * 100)}"
+    def export_json_report(self, output_filename="report.json"):
+        import json
+        report_data = {
+            "total_missing": self.get_total_missing_frames(),
+            "total_corrupt_r6": self.get_total_corrupt_r6(),
+            "total_corrupt_r9": self.get_total_corrupt_r9(),
+            "status": "FAILED" if self.get_total_missing_frames() > 0 or self.get_total_corrupt_r9() > 0 else "PASSED"
+        }
+        with open(output_filename, 'w') as f:
+            json.dump(report_data, f, indent=4)
+        print(f"JSON Report exported to {output_filename}")
 
 if __name__ == "__main__":
     checker = DeliveryChecker('D1_shot_list.csv', 'D2_delivery_manifest.csv')
@@ -246,5 +257,7 @@ if __name__ == "__main__":
 
     #Lock D4 (F1 Score R6/R9)
     print(f"Lock D4 (F1 Score R6/R9): {checker.evaluate_rules('D3_labelled_sample.csv')}")
+
+    checker.export_json_report()
 
     
